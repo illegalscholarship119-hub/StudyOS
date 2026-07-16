@@ -1,27 +1,31 @@
 function CaptureDock() {
+  const actions = [
+    { icon: "📋", label: "Paste" },
+    { icon: "📷", label: "Screenshot" },
+    { icon: "+", label: "Add", primary: true },
+    { icon: "📄", label: "PDF" },
+    { icon: "🎥", label: "Video" },
+  ];
+
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white shadow-xl rounded-full px-6 py-4 flex items-center gap-6 border">
+    <div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2">
+      <div className="flex items-center gap-4 rounded-full border border-gray-200 bg-white px-5 py-3 shadow-2xl">
 
-      <button className="text-2xl hover:scale-110 transition">
-        📋
-      </button>
+        {actions.map((action) => (
+          <button
+            key={action.label}
+            title={action.label}
+            className={
+              action.primary
+                ? "flex h-16 w-16 items-center justify-center rounded-full bg-blue-500 text-3xl text-white shadow-lg transition hover:scale-110"
+                : "flex h-12 w-12 items-center justify-center rounded-full text-2xl transition hover:bg-gray-100 hover:scale-105"
+            }
+          >
+            {action.icon}
+          </button>
+        ))}
 
-      <button className="text-2xl hover:scale-110 transition">
-        📷
-      </button>
-
-      <button className="w-16 h-16 rounded-full bg-blue-600 text-white text-3xl hover:scale-105 transition">
-        +
-      </button>
-
-      <button className="text-2xl hover:scale-110 transition">
-        📄
-      </button>
-
-      <button className="text-2xl hover:scale-110 transition">
-        🎥
-      </button>
-
+      </div>
     </div>
   );
 }

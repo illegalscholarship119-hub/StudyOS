@@ -1,25 +1,74 @@
+const subjects = [
+  {
+    name: "DSA",
+    color: "bg-teal-200",
+    active: true,
+  },
+  {
+    name: "Java",
+    color: "bg-orange-200",
+    active: false,
+  },
+  {
+    name: "DBMS",
+    color: "bg-yellow-200",
+    active: false,
+  },
+  {
+    name: "AWS",
+    color: "bg-purple-200",
+    active: false,
+  },
+  {
+    name: "+",
+    color: "bg-gray-100",
+    active: false,
+  },
+];
+
 function OrbitBar() {
-  const subjects = [
-    { name: "DSA", color: "bg-teal-200" },
-    { name: "Java", color: "bg-orange-200" },
-    { name: "DBMS", color: "bg-yellow-200" },
-    { name: "AWS", color: "bg-purple-200" },
-    { name: "+", color: "bg-gray-200" },
-  ];
-
   return (
-    <div className="flex gap-8 px-8 py-6">
-      {subjects.map((subject) => (
-        <div key={subject.name} className="flex flex-col items-center gap-2">
-          <button
-            className={`w-20 h-20 rounded-full ${subject.color} border-2 border-transparent hover:border-blue-500 transition duration-300`}
-          >
-          </button>
+    <section className="max-w-7xl mx-auto px-8 pt-6">
+      <div className="flex gap-8">
 
-          <p className="text-sm font-medium">{subject.name}</p>
-        </div>
-      ))}
-    </div>
+        {subjects.map((subject) => (
+          <div
+            key={subject.name}
+            className="flex flex-col items-center cursor-pointer group"
+          >
+            <div
+              className={`
+                w-20 h-20 rounded-full
+                ${subject.color}
+                flex items-center justify-center
+                transition-all duration-300
+                hover:scale-105
+                ${
+                  subject.active
+                    ? "ring-4 ring-blue-500 shadow-lg"
+                    : "hover:ring-2 hover:ring-gray-300"
+                }
+              `}
+            >
+              <span className="font-semibold text-gray-700">
+                {subject.name}
+              </span>
+            </div>
+
+            <span
+              className={`mt-3 text-sm ${
+                subject.active
+                  ? "font-semibold text-black"
+                  : "text-gray-500"
+              }`}
+            >
+              {subject.name}
+            </span>
+          </div>
+        ))}
+
+      </div>
+    </section>
   );
 }
 

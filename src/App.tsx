@@ -1,7 +1,7 @@
-import DashboardPage from "./pages/DashboardPage";
+import AppRouter from "./router";
 
 function App() {
-  return <DashboardPage />;
+  return <AppRouter />;
 }
 
 export default App;

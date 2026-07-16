@@ -1,3 +1,5 @@
+import MainLayout from "../layouts/MainLayout";
+
 import Header from "../components/Header/Header";
 import OrbitBar from "../components/OrbitBar/OrbitBar";
 import WelcomeSection from "../components/WelcomeSection/WelcomeSection";
@@ -9,7 +11,7 @@ import CaptureDock from "../components/CaptureDock/CaptureDock";
 
 function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50 pb-36">
+    <MainLayout>
       <Header />
       <OrbitBar />
       <WelcomeSection />
@@ -18,7 +20,7 @@ function DashboardPage() {
       <RevisionDue />
       <RecentNotes />
       <CaptureDock />
-    </div>
+    </MainLayout>
   );
 }
 
