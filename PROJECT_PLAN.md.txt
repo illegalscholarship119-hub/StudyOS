@@ -1,0 +1,73 @@
+# 📚 StudyOS
+
+> Your personal AI-powered study workspace.
+
+---
+
+# 🎯 Goal
+
+StudyOS helps students organize everything related to studying in one place.
+
+Instead of keeping notes in YouTube, ChatGPT, Claude, PDFs, screenshots and notebooks...
+
+Everything lives inside one topic.
+
+---
+
+# Features
+
+- Screenshot Saving
+- Paste Text
+- PDF Upload
+- YouTube Clips
+- Personal Notes
+- AI Summary
+- AI Question Generator
+- AI Flashcards
+- AI Chat
+
+---
+
+# Pages
+
+- Dashboard
+- Subject
+- Topic
+- Settings
+
+---
+
+# UI Components
+
+- Header
+- Orbit Bar
+- Capture Dock
+- Subject Cards
+- Topic Cards
+- Timeline
+
+---
+
+# Development Progress
+
+## Phase 1
+- [x] React Setup
+- [x] Tailwind Setup
+- [x] Project Structure
+
+## Phase 2
+- [ ] Dashboard UI
+- [ ] Subject Page
+- [ ] Topic Page
+- [ ] Capture Dock
+
+## Phase 3
+- [ ] Database
+- [ ] Authentication
+- [ ] AI Integration
+
+## Phase 4
+- [ ] Polish
+- [ ] Animations
+- [ ] Dark Mode
+- [ ] Deploy
