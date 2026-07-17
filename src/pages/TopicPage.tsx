@@ -12,6 +12,7 @@ import Button from "../components/Button/Button";
 import { notes as initialNotes } from "../data/notes";
 import { topics } from "../data/topics";
 import useSearch from "../hooks/useSearch";
+import { fileToBase64 } from "../lib/utils";
 
 type ResourceType = "note" | "pdf" | "image" | "video";
 
@@ -22,6 +23,9 @@ type Note = {
   content: string;
   createdAt: string;
   topicSlug?: string;
+
+  startTime?: string;
+  endTime?: string;
 };
 
 function TopicPage() {
@@ -80,26 +84,24 @@ function TopicPage() {
   );
 
   function handleSave(
-    title: string,
-    content: string,
-    type: "note" | "pdf" | "image"
-  ) {
-    console.log("========== SAVE ==========");
-    console.log("Title:", title);
-    console.log("Type:", type);
-    console.log("Content starts with:");
-    console.log(content.substring(0, 150));
-
+  title: string,
+  content: string,
+  type: "note" | "pdf" | "image" | "video",
+  startTime?: string,
+  endTime?: string
+) {
     if (editingNote) {
       setNotes(
         notes.map((note) =>
           note.id === editingNote.id
             ? {
-                ...note,
-                title,
-                content,
-                type,
-              }
+  ...note,
+  title,
+  content,
+  type,
+  startTime,
+  endTime,
+}
             : note
         )
       );
@@ -107,16 +109,15 @@ function TopicPage() {
       setEditingNote(null);
     } else {
       const newResource: Note = {
-        id: Date.now(),
-        topicSlug: slug,
-        title,
-        content,
-        type,
-        createdAt: "Just now",
-      };
-
-      console.log("New Resource:");
-      console.log(newResource);
+  id: Date.now(),
+  topicSlug: slug,
+  title,
+  content,
+  type,
+  startTime,
+  endTime,
+  createdAt: "Just now",
+};
 
       setNotes((prev) => [newResource, ...prev]);
     }
@@ -133,78 +134,123 @@ function TopicPage() {
     setShowModal(true);
   }
 
+  async function handlePaste(
+    e: React.ClipboardEvent<HTMLDivElement>
+  ) {
+    const items = e.clipboardData.items;
+
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+
+        const file = item.getAsFile();
+
+        if (!file) return;
+
+        const base64 = await fileToBase64(file);
+
+        const newImage: Note = {
+          id: Date.now(),
+          topicSlug: slug,
+          title: `Screenshot ${new Date().toLocaleTimeString()}`,
+          type: "image",
+          content: base64,
+          createdAt: "Just now",
+        };
+
+        setNotes((prev) => [newImage, ...prev]);
+
+        alert("✅ Screenshot added!");
+
+        return;
+      }
+    }
+  }
+
   return (
-    <MainLayout>
-      <Header />
+    <div
+      tabIndex={0}
+      onPaste={handlePaste}
+      className="outline-none"
+    >
+      <MainLayout>
+        <Header />
 
-      <TopicHeader
-        subject={topic.subject}
-        title={topic.title}
-        description={topic.description}
-        notes={topic.notes}
-        progress={topic.progress}
-        color={topic.color}
-      />
+        <TopicHeader
+          subject={topic.subject}
+          title={topic.title}
+          description={topic.description}
+          notes={topic.notes}
+          progress={topic.progress}
+          color={topic.color}
+        />
 
-      <section className="mx-auto max-w-7xl px-8 pb-10">
-        <h2 className="mb-6 text-3xl font-bold">
-          Lessons
-        </h2>
-
-        <div className="space-y-4">
-          {topic.lessons.map((lesson) => (
-            <LessonCard
-              key={lesson.id}
-              slug={lesson.slug}
-              title={lesson.title}
-              duration={lesson.duration}
-              completed={lesson.completed}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-8 py-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-3xl font-bold">
-            Resources
+        <section className="mx-auto max-w-7xl px-8 pb-10">
+          <h2 className="mb-6 text-3xl font-bold">
+            Lessons
           </h2>
 
-          <Button
-            onClick={() => {
+          <div className="space-y-4">
+            {topic.lessons.map((lesson) => (
+              <LessonCard
+                key={lesson.id}
+                slug={lesson.slug}
+                title={lesson.title}
+                duration={lesson.duration}
+                completed={lesson.completed}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-8 py-6">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-3xl font-bold">
+              Resources
+            </h2>
+
+            <Button
+              onClick={() => {
+                setEditingNote(null);
+                setShowModal(true);
+              }}
+            >
+              + Add Resource
+            </Button>
+          </div>
+
+          <p className="mb-4 rounded-xl bg-blue-50 p-4 text-blue-700">
+            📸 Tip: Press <b>Ctrl + V</b> anywhere on this page after taking a
+            screenshot (Win + Shift + S) to instantly add it as an Image
+            Resource.
+          </p>
+
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search resources..."
+            className="mb-8 w-full rounded-xl border border-gray-200 p-4 outline-none focus:border-blue-500"
+          />
+
+          <NotesList
+            notes={filteredItems}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+          />
+        </section>
+
+        {showModal && (
+          <AddNoteModal
+            onClose={() => {
               setEditingNote(null);
-              setShowModal(true);
+              setShowModal(false);
             }}
-          >
-            + Add Resource
-          </Button>
-        </div>
-
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search resources..."
-          className="mb-8 w-full rounded-xl border border-gray-200 p-4 outline-none focus:border-blue-500"
-        />
-
-        <NotesList
-          notes={filteredItems}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-        />
-      </section>
-
-      {showModal && (
-        <AddNoteModal
-          onClose={() => {
-            setEditingNote(null);
-            setShowModal(false);
-          }}
-          onSave={handleSave}
-          editingNote={editingNote}
-        />
-      )}
-    </MainLayout>
+            onSave={handleSave}
+            editingNote={editingNote}
+          />
+        )}
+      </MainLayout>
+    </div>
   );
 }
 

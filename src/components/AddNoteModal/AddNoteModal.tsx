@@ -7,15 +7,20 @@ type Note = {
   type: "note" | "pdf" | "image" | "video";
   content: string;
   createdAt: string;
+
+  startTime?: string;
+  endTime?: string;
 };
 
 type AddNoteModalProps = {
   onClose: () => void;
-  onSave: (
-    title: string,
-    content: string,
-    type: "note" | "pdf" | "image"
-  ) => void;
+ onSave: (
+  title: string,
+  content: string,
+  type: "note" | "pdf" | "image" | "video",
+  startTime?: string,
+  endTime?: string
+) => void;
   editingNote?: Note | null;
 };
 
@@ -24,26 +29,31 @@ function AddNoteModal({
   onSave,
   editingNote,
 }: AddNoteModalProps) {
-  const [resourceType, setResourceType] = useState<
-    "note" | "pdf" | "image"
-  >("note");
+ const [resourceType, setResourceType] = useState<
+  "note" | "pdf" | "image" | "video"
+>("note");
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
     if (editingNote) {
       setTitle(editingNote.title);
       setContent(editingNote.content);
+      setStartTime(editingNote.startTime ?? "");
+      setEndTime(editingNote.endTime ?? "");
 
       if (
-        editingNote.type === "note" ||
-        editingNote.type === "pdf" ||
-        editingNote.type === "image"
-      ) {
-        setResourceType(editingNote.type);
-      }
+  editingNote.type === "note" ||
+  editingNote.type === "pdf" ||
+  editingNote.type === "image" ||
+  editingNote.type === "video"
+) {
+  setResourceType(editingNote.type);
+}
     }
   }, [editingNote]);
 
@@ -70,18 +80,24 @@ function AddNoteModal({
   }
 
   function handleSave() {
-    if (!title.trim()) return;
+    if (resourceType === "video") {
+  const url = content.trim();
 
-    if (resourceType === "note" && !content.trim()) return;
-
-    if (
-      (resourceType === "pdf" || resourceType === "image") &&
-      !content
-    ) {
-      return;
-    }
-
-    onSave(title, content, resourceType);
+  if (
+    !url.includes("youtube.com") &&
+    !url.includes("youtu.be")
+  ) {
+    alert("Please enter a valid YouTube URL.");
+    return;
+  }
+}
+   onSave(
+  title,
+  content,
+  resourceType,
+  startTime,
+  endTime
+);
 
     setTitle("");
     setContent("");
@@ -137,6 +153,18 @@ function AddNoteModal({
           >
             🖼 Image
           </button>
+
+          <button
+  onClick={() => setResourceType("video")}
+  className={`rounded-xl px-4 py-2 ${
+    resourceType === "video"
+      ? "bg-blue-600 text-white"
+      : "bg-gray-100"
+  }`}
+>
+  🎥 Video
+</button>
+
         </div>
 
         <input
@@ -147,37 +175,58 @@ function AddNoteModal({
         />
 
         {resourceType === "note" ? (
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your notes..."
-            className="mt-4 h-40 w-full rounded-xl border p-4"
-          />
-        ) : (
-          <div className="mt-4 rounded-xl border-2 border-dashed border-gray-300 p-6">
-            <input
-              type="file"
-              accept={
-                resourceType === "pdf"
-                  ? ".pdf"
-                  : "image/*"
-              }
-              onChange={handleFileChange}
-            />
+  <textarea
+    value={content}
+    onChange={(e) => setContent(e.target.value)}
+    placeholder="Write your notes..."
+    className="mt-4 h-40 w-full rounded-xl border p-4"
+  />
+) : resourceType === "video" ? (
+  <>
+    <input
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+      placeholder="Paste YouTube URL..."
+      className="mt-4 w-full rounded-xl border p-4"
+    />
 
-            {loading && (
-              <p className="mt-4 text-sm text-blue-600">
-                Reading file...
-              </p>
-            )}
+    <div className="mt-4 grid grid-cols-2 gap-4">
+      <input
+        value={startTime}
+        onChange={(e) => setStartTime(e.target.value)}
+        placeholder="Start (e.g. 10:32)"
+        className="rounded-xl border p-4"
+      />
 
-            {!loading && content && (
-              <p className="mt-4 text-sm text-green-600">
-                ✅ File loaded successfully
-              </p>
-            )}
-          </div>
-        )}
+      <input
+        value={endTime}
+        onChange={(e) => setEndTime(e.target.value)}
+        placeholder="End (e.g. 13:48)"
+        className="rounded-xl border p-4"
+      />
+    </div>
+  </>
+) : (
+  <div className="mt-4 rounded-xl border-2 border-dashed border-gray-300 p-6">
+    <input
+      type="file"
+      accept={resourceType === "pdf" ? ".pdf" : "image/*"}
+      onChange={handleFileChange}
+    />
+
+    {loading && (
+      <p className="mt-4 text-sm text-blue-600">
+        Reading file...
+      </p>
+    )}
+
+    {!loading && content && (
+      <p className="mt-4 text-sm text-green-600">
+        ✅ File loaded successfully
+      </p>
+    )}
+  </div>
+)}
 
         <button
           onClick={handleSave}

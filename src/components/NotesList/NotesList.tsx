@@ -7,6 +7,9 @@ export type Note = {
   type: "note" | "pdf" | "image" | "video";
   content: string;
   createdAt: string;
+
+  startTime?: string;
+  endTime?: string;
 };
 
 type NotesListProps = {
@@ -63,10 +66,31 @@ function NotesList({
         setPreviewImage(note.content);
         break;
 
-      case "video":
-        window.open(note.content, "_blank");
-        break;
+      case "video": {
+  let url = note.content;
 
+  if (note.startTime) {
+    const parts = note.startTime.split(":").map(Number);
+
+    let seconds = 0;
+
+    if (parts.length === 2) {
+      seconds = parts[0] * 60 + parts[1];
+    } else if (parts.length === 3) {
+      seconds =
+        parts[0] * 3600 +
+        parts[1] * 60 +
+        parts[2];
+    }
+
+    url += url.includes("?")
+      ? `&t=${seconds}s`
+      : `?t=${seconds}s`;
+  }
+
+  window.open(url, "_blank");
+  break;
+}
       default:
         onEdit(note);
     }
