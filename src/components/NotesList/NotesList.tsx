@@ -1,7 +1,10 @@
-type Note = {
+import { useState } from "react";
+import ContentCard from "../ContentCard/ContentCard";
+
+export type Note = {
   id: number;
   title: string;
-  type: string;
+  type: "note" | "pdf" | "image" | "video";
   content: string;
   createdAt: string;
 };
@@ -17,61 +20,127 @@ function NotesList({
   onDelete,
   onEdit,
 }: NotesListProps) {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  function openPdf(base64: string) {
+    try {
+      const base64Data = base64.split(",")[1];
+
+      const byteCharacters = atob(base64Data);
+
+      const byteNumbers = new Array(byteCharacters.length);
+
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+
+      const blob = new Blob([byteArray], {
+        type: "application/pdf",
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      window.open(url, "_blank");
+    } catch (err) {
+      console.error(err);
+      alert("Unable to open PDF.");
+    }
+  }
+
+  function handleOpen(note: Note) {
+    switch (note.type) {
+      case "note":
+        onEdit(note);
+        break;
+
+      case "pdf":
+        openPdf(note.content);
+        break;
+
+      case "image":
+        setPreviewImage(note.content);
+        break;
+
+      case "video":
+        window.open(note.content, "_blank");
+        break;
+
+      default:
+        onEdit(note);
+    }
+  }
+
+  if (notes.length === 0) {
+    return (
+      <section className="mx-auto max-w-7xl px-8 py-10">
+        <h2 className="mb-6 text-3xl font-bold">
+          Resources
+        </h2>
+
+        <div className="rounded-2xl border border-dashed border-gray-300 py-16 text-center text-gray-500">
+          No study resources added yet.
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="max-w-7xl mx-auto px-8 py-10">
-      <h2 className="mb-6 text-3xl font-bold">
-        Notes
-      </h2>
+    <>
+      <section className="mx-auto max-w-7xl px-8 py-10">
+        <h2 className="mb-6 text-3xl font-bold">
+          Resources
+        </h2>
 
-      <div className="space-y-4">
-        {notes.map((note) => (
-          <div
-            key={note.id}
-            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition"
-          >
-            <div className="flex items-start justify-between">
+        <div className="space-y-4">
+          {notes.map((note) => (
+            <div
+              key={note.id}
+              className="relative"
+            >
+              <ContentCard
+                title={note.title}
+                type={note.type}
+                createdAt={note.createdAt}
+                onOpen={() => handleOpen(note)}
+              />
 
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold">
-                  {note.title}
-                </h3>
-
-                <span className="mt-2 inline-block rounded-full bg-gray-100 px-3 py-1 text-sm">
-                  {note.type}
-                </span>
-
-                <p className="mt-4 text-gray-600">
-                  {note.content}
-                </p>
-
-                <p className="mt-4 text-sm text-gray-400">
-                  {note.createdAt}
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-
+              <div className="absolute right-24 top-5 flex gap-2">
                 <button
                   onClick={() => onEdit(note)}
-                  className="rounded-lg px-3 py-2 hover:bg-blue-50"
+                  className="rounded-lg p-2 transition hover:bg-blue-100"
+                  title="Edit"
                 >
                   ✏️
                 </button>
 
                 <button
                   onClick={() => onDelete(note.id)}
-                  className="rounded-lg px-3 py-2 hover:bg-red-50"
+                  className="rounded-lg p-2 transition hover:bg-red-100"
+                  title="Delete"
                 >
                   🗑️
                 </button>
-
               </div>
-
             </div>
-          </div>
-        ))}
-      </div>
-    </section>
+          ))}
+        </div>
+      </section>
+
+      {previewImage && (
+        <div
+          onClick={() => setPreviewImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-10"
+        >
+          <img
+            src={previewImage}
+            alt="Preview"
+            className="max-h-full max-w-full rounded-2xl"
+          />
+        </div>
+      )}
+    </>
   );
 }
 

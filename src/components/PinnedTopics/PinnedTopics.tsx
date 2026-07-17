@@ -1,22 +1,12 @@
-const topics = [
-  {
-    title: "Stacks",
-    items: 18,
-    color: "bg-teal-200",
-  },
-  {
-    title: "OOP",
-    items: 12,
-    color: "bg-orange-200",
-  },
-  {
-    title: "VPC",
-    items: 9,
-    color: "bg-purple-200",
-  },
-];
+import { useNavigate } from "react-router-dom";
+
+import { topics } from "../../data/topics";
 
 function PinnedTopics() {
+  const navigate = useNavigate();
+
+  const pinnedTopics = topics.filter((topic) => topic.progress >= 60);
+
   return (
     <section className="max-w-7xl mx-auto px-8 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -30,10 +20,12 @@ function PinnedTopics() {
       </div>
 
       <div className="grid grid-cols-3 gap-8">
-        {topics.map((topic) => (
+        {pinnedTopics.map((topic) => (
           <div
-            key={topic.title}
+            key={topic.slug}
+            onClick={() => navigate(`/topic/${topic.slug}`)}
             className="
+              cursor-pointer
               bg-white
               rounded-3xl
               border
@@ -55,7 +47,7 @@ function PinnedTopics() {
             </h3>
 
             <p className="mt-2 text-lg text-gray-500">
-              {topic.items} Items
+              {topic.notes} Notes
             </p>
           </div>
         ))}

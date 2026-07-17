@@ -1,50 +1,39 @@
-const subjects = [
-  {
-    name: "DSA",
-    color: "bg-teal-200",
-    active: true,
-  },
-  {
-    name: "Java",
-    color: "bg-orange-200",
-    active: false,
-  },
-  {
-    name: "DBMS",
-    color: "bg-yellow-200",
-    active: false,
-  },
-  {
-    name: "AWS",
-    color: "bg-purple-200",
-    active: false,
-  },
-  {
-    name: "+",
-    color: "bg-gray-100",
-    active: false,
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { topics } from "../../data/topics";
 
 function OrbitBar() {
-  return (
-    <section className="max-w-7xl mx-auto px-8 pt-6">
-      <div className="flex gap-8">
+  const navigate = useNavigate();
 
-        {subjects.map((subject) => (
+  const subjects = Array.from(
+    new Map(
+      topics.map((topic) => [
+        topic.subject,
+        {
+          name: topic.subject,
+          color: topic.color,
+          slug: topic.subject.toLowerCase(),
+        },
+      ])
+    ).values()
+  );
+
+  return (
+    <section className="mx-auto max-w-7xl px-8 pt-6">
+      <div className="flex gap-8 overflow-x-auto pb-2">
+        {subjects.map((subject, index) => (
           <div
             key={subject.name}
-            className="flex flex-col items-center cursor-pointer group"
+            onClick={() => navigate(`/subject/${subject.slug}`)}
+            className="group flex cursor-pointer flex-col items-center"
           >
             <div
               className={`
-                w-20 h-20 rounded-full
+                flex h-20 w-20 items-center justify-center rounded-full
                 ${subject.color}
-                flex items-center justify-center
                 transition-all duration-300
                 hover:scale-105
                 ${
-                  subject.active
+                  index === 0
                     ? "ring-4 ring-blue-500 shadow-lg"
                     : "hover:ring-2 hover:ring-gray-300"
                 }
@@ -57,7 +46,7 @@ function OrbitBar() {
 
             <span
               className={`mt-3 text-sm ${
-                subject.active
+                index === 0
                   ? "font-semibold text-black"
                   : "text-gray-500"
               }`}
@@ -66,7 +55,6 @@ function OrbitBar() {
             </span>
           </div>
         ))}
-
       </div>
     </section>
   );

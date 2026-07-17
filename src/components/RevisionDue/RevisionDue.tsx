@@ -1,75 +1,70 @@
-const revisions = [
-  {
-    topic: "VPC Peering",
-    status: "Overdue",
-    color: "bg-red-500",
-  },
-  {
-    topic: "Stacks",
-    status: "Due Today",
-    color: "bg-yellow-500",
-  },
-  {
-    topic: "OOP",
-    status: "In 3 Days",
-    color: "bg-gray-400",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { topics } from "../../data/topics";
 
 function RevisionDue() {
+  const navigate = useNavigate();
+
+  const revisions = [...topics]
+    .sort((a, b) => a.progress - b.progress)
+    .slice(0, 3)
+    .map((topic) => ({
+      ...topic,
+      status:
+        topic.progress < 40
+          ? "Overdue"
+          : topic.progress < 70
+          ? "Due Today"
+          : "In 3 Days",
+      color:
+        topic.progress < 40
+          ? "bg-red-500"
+          : topic.progress < 70
+          ? "bg-yellow-500"
+          : "bg-green-500",
+    }));
+
   return (
-    <section className="max-w-7xl mx-auto px-8 py-8">
-      <div className="flex items-center justify-between mb-8">
+    <section className="mx-auto max-w-7xl px-8 py-8">
+      <div className="mb-8 flex items-center justify-between">
         <h2 className="text-4xl font-bold">
           📅 Revision Due
         </h2>
 
-        <button className="text-blue-600 hover:underline font-medium">
+        <button className="font-medium text-blue-600 hover:underline">
           View All
         </button>
       </div>
 
-      <div className="rounded-3xl border border-gray-100 bg-white overflow-hidden shadow-sm">
-
+      <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
         {revisions.map((item) => (
           <div
-            key={item.topic}
-            className="
-              flex
-              items-center
-              justify-between
-              p-6
-              border-b
-              last:border-b-0
-              hover:bg-gray-50
-              transition
-            "
+            key={item.slug}
+            className="flex items-center justify-between border-b p-6 transition last:border-b-0 hover:bg-gray-50"
           >
             <div className="flex items-center gap-4">
-
               <div
-                className={`w-3 h-3 rounded-full ${item.color}`}
-              ></div>
+                className={`h-3 w-3 rounded-full ${item.color}`}
+              />
 
               <div>
                 <h3 className="text-xl font-semibold">
-                  {item.topic}
+                  {item.title}
                 </h3>
 
                 <p className="text-gray-500">
                   {item.status}
                 </p>
               </div>
-
             </div>
 
-            <button className="rounded-full border border-gray-200 px-5 py-2 hover:bg-gray-100 transition">
+            <button
+              onClick={() => navigate(`/topic/${item.slug}`)}
+              className="rounded-full border border-gray-200 px-5 py-2 transition hover:bg-gray-100"
+            >
               Open
             </button>
-
           </div>
         ))}
-
       </div>
     </section>
   );
